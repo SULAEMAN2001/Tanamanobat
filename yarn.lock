@@ -1870,15 +1870,15 @@
   "resolved" "https://registry.npmjs.org/@react-native-community/netinfo/-/netinfo-11.3.2.tgz"
   "version" "11.3.2"
 
+"@react-native/assets-registry@^0.74.84":
+  "integrity" "sha512-dzUhwyaX04QosWZ8zyaaNB/WYZIdeDN1lcpfQbqiOhZJShRH+FLTDVONE/dqlMQrP+EO7lDqF0RrlIt9lnOCQQ=="
+  "resolved" "https://registry.npmjs.org/@react-native/assets-registry/-/assets-registry-0.74.84.tgz"
+  "version" "0.74.84"
+
 "@react-native/assets-registry@0.74.83":
   "integrity" "sha512-2vkLMVnp+YTZYTNSDIBZojSsjz8sl5PscP3j4GcV6idD8V978SZfwFlk8K0ti0BzRs11mzL0Pj17km597S/eTQ=="
   "resolved" "https://registry.npmjs.org/@react-native/assets-registry/-/assets-registry-0.74.83.tgz"
   "version" "0.74.83"
-
-"@react-native/assets-registry@0.74.84":
-  "integrity" "sha512-dzUhwyaX04QosWZ8zyaaNB/WYZIdeDN1lcpfQbqiOhZJShRH+FLTDVONE/dqlMQrP+EO7lDqF0RrlIt9lnOCQQ=="
-  "resolved" "https://registry.npmjs.org/@react-native/assets-registry/-/assets-registry-0.74.84.tgz"
-  "version" "0.74.84"
 
 "@react-native/babel-plugin-codegen@0.74.83":
   "integrity" "sha512-+S0st3t4Ro00bi9gjT1jnK8qTFOU+CwmziA7U9odKyWrCoRJrgmrvogq/Dr1YXlpFxexiGIupGut1VHxr+fxJA=="
@@ -3595,12 +3595,11 @@
     "signal-exit" "^3.0.3"
     "strip-final-newline" "^2.0.0"
 
-"expo-asset@~10.0.8":
-  "integrity" "sha512-FGqNkrbIQD16AN84mu4Ly8Gsj20ce54avbYU2Q0oXqYdZ8etmuFr30BDe5X9vCZjZAFtE00kUNwBuyC8OENCgA=="
-  "resolved" "https://registry.npmjs.org/expo-asset/-/expo-asset-10.0.8.tgz"
-  "version" "10.0.8"
+"expo-asset@~10.0.10", "expo-asset@~10.0.8":
+  "integrity" "sha512-0qoTIihB79k+wGus9wy0JMKq7DdenziVx3iUkGvMAy2azscSgWH6bd2gJ9CGnhC6JRd3qTMFBL0ou/fx7WZl7A=="
+  "resolved" "https://registry.npmjs.org/expo-asset/-/expo-asset-10.0.10.tgz"
+  "version" "10.0.10"
   dependencies:
-    "@react-native/assets-registry" "0.74.84"
     "expo-constants" "~16.0.0"
     "invariant" "^2.2.4"
     "md5-file" "^3.2.3"
@@ -3624,6 +3623,18 @@
   "version" "12.0.7"
   dependencies:
     "fontfaceobserver" "^2.1.0"
+
+"expo-image-loader@~4.7.0":
+  "integrity" "sha512-cx+MxxsAMGl9AiWnQUzrkJMJH4eNOGlu7XkLGnAXSJrRoIiciGaKqzeaD326IyCTV+Z1fXvIliSgNW+DscvD8g=="
+  "resolved" "https://registry.npmjs.org/expo-image-loader/-/expo-image-loader-4.7.0.tgz"
+  "version" "4.7.0"
+
+"expo-image-picker@~15.0.6":
+  "integrity" "sha512-WckDXKlvOwywOr5twCOyqTDwEhYHD2ty6k8V2qCWbHHKEVe6C0iGFQgHHIPFKY4E1yhlEADg1UMTt0mnhV2A9Q=="
+  "resolved" "https://registry.npmjs.org/expo-image-picker/-/expo-image-picker-15.0.6.tgz"
+  "version" "15.0.6"
+  dependencies:
+    "expo-image-loader" "~4.7.0"
 
 "expo-keep-awake@~13.0.2":
   "integrity" "sha512-kKiwkVg/bY0AJ5q1Pxnm/GvpeB6hbNJhcFsoOWDh2NlpibhCLaHL826KHUM+WsnJRbVRxJ+K9vbPRHEMvFpVyw=="
@@ -7369,26 +7380,26 @@
     "signal-exit" "^3.0.2"
 
 "ws@^6.2.2":
-  "integrity" "sha512-zmhltoSR8u1cnDsD43TX59mzoMZsLKqUweyYBAIvTngR3shc0W6aOZylZmq/7hqyVxPdi+5Ud2QInblgyE72fw=="
-  "resolved" "https://registry.npmjs.org/ws/-/ws-6.2.2.tgz"
-  "version" "6.2.2"
+  "integrity" "sha512-jmTjYU0j60B+vHey6TfR3Z7RD61z/hmxBS3VMSGIrroOWXQEneK1zNuotOUrGyBHQj0yrpsLHPWtigEFd13ndA=="
+  "resolved" "https://registry.npmjs.org/ws/-/ws-6.2.3.tgz"
+  "version" "6.2.3"
   dependencies:
     "async-limiter" "~1.0.0"
 
 "ws@^7.5.1":
-  "integrity" "sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q=="
-  "resolved" "https://registry.npmjs.org/ws/-/ws-7.5.9.tgz"
-  "version" "7.5.9"
+  "integrity" "sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ=="
+  "resolved" "https://registry.npmjs.org/ws/-/ws-7.5.10.tgz"
+  "version" "7.5.10"
 
 "ws@^7":
-  "integrity" "sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q=="
-  "resolved" "https://registry.npmjs.org/ws/-/ws-7.5.9.tgz"
-  "version" "7.5.9"
+  "integrity" "sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ=="
+  "resolved" "https://registry.npmjs.org/ws/-/ws-7.5.10.tgz"
+  "version" "7.5.10"
 
 "ws@^8.12.1":
-  "integrity" "sha512-uJq6108EgZMAl20KagGkzCKfMEjxmKvZHG7Tlq0Z6nOky7YF7aq4mOx6xK8TJ/i1LeK4Qus7INktacctDgY8Ow=="
-  "resolved" "https://registry.npmjs.org/ws/-/ws-8.17.0.tgz"
-  "version" "8.17.0"
+  "integrity" "sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ=="
+  "resolved" "https://registry.npmjs.org/ws/-/ws-8.17.1.tgz"
+  "version" "8.17.1"
 
 "xcode@^3.0.1":
   "integrity" "sha512-kCz5k7J7XbJtjABOvkc5lJmkiDh8VhjVCGNiqdKCscmVpdVUpEAyXv1xmCLkQJ5dsHqx3IPO4XW+NTDhU/fatA=="
