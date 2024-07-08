@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet, TextInput, Image,KeyboardAvoidingView,Platform } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
-import Svg, { Path, G, Circle, Defs, ClipPath, Rect, Filter , Use,FeFlood,FeColorMatrix, FeOffset,FeGaussianBlur,FeComposite,FeBlend,Pattern,path} from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
+import * as FileSystem from 'expo-file-system';
 
 const HomeScreen = ({ navigation }) => {
   const [data, setData] = useState([]);
@@ -15,17 +27,13 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchData();
-    fetchDiseases(); // Ambil data penyakit
+    fetchDiseases();
     const intervalId = setInterval(fetchData, 5000);
 
-    const handleConnectivityChange = (isConnected) => {
-      if (isConnected) {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      if (state.isConnected) {
         syncDataWithServer();
       }
-    };
-
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      handleConnectivityChange(state.isConnected);
     });
 
     return () => {
@@ -36,41 +44,63 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (searchQuery) {
-      // Filter tanaman berdasarkan nama
       const filteredItems = data.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-
-      // Filter penyakit berdasarkan nama
+ 
       const filteredDiseases = diseases.filter((disease) =>
         disease.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-      // Mendapatkan tanaman yang terkait dengan penyakit yang difilter
       const relatedItems = filteredDiseases.flatMap(disease =>
         disease.diseaseItems.map(diseaseItem => data.find(item => item.id === diseaseItem.itemId))
       ).filter(item => item);
 
-      // Gabungkan hasil pencarian penyakit dengan tanaman terkait
       const uniqueItems = [...new Set([...filteredItems, ...relatedItems])];
       setFilteredData(uniqueItems);
     } else {
-      // Jika pencarian kosong, kembalikan ke data awal
       setFilteredData(data);
     }
   }, [searchQuery, data, diseases]);
 
+  const downloadImage = async (url) => {
+    const fileName = url.split('/').pop();
+    const path = `${FileSystem.documentDirectory}${fileName}`;
+
+    try {
+      await FileSystem.downloadAsync(url, path);
+      return path;
+    } catch (error) {
+      console.error('Error downloading image:', error.message);
+      return null;
+    }
+  };
+
+  const getImagePath = async (url) => {
+    const fileName = url.split('/').pop();
+    const path = `${FileSystem.documentDirectory}${fileName}`;
+    const exists = await FileSystem.getInfoAsync(path);
+    if (exists.exists) {
+      return path;
+    } else {
+      return await downloadImage(url);
+    }
+  };
+
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://192.168.109.63:5000/items');
+      const response = await axios.get('http://192.168.0.113:5000/items');
       if (JSON.stringify(response.data) !== JSON.stringify(data)) {
-        setData(response.data);
-        await saveDataLocally(response.data);
+        const itemsWithLocalImages = await Promise.all(response.data.map(async (item) => {
+          const localImagePath = await getImagePath(item.image);
+          return { ...item, localImagePath };
+        }));
+        setData(itemsWithLocalImages);
+        await saveDataLocally(itemsWithLocalImages);
       }
       setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error.message);
-      setError(error.message);
       await loadDataFromLocal();
       setLoading(false);
     }
@@ -78,7 +108,7 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchDiseases = async () => {
     try {
-      const response = await axios.get('http://192.168.109.63:5000/diseases');
+      const response = await axios.get('http://192.168.0.113:5000/diseases');
       setDiseases(response.data);
     } catch (error) {
       console.error('Error fetching diseases:', error.message);
@@ -118,7 +148,7 @@ const HomeScreen = ({ navigation }) => {
       const unsyncedData = await AsyncStorage.getItem('unsyncedData');
       if (unsyncedData) {
         const data = JSON.parse(unsyncedData);
-        await axios.post('http://192.168.109.63:5000/sync-items', data);
+        await axios.post('http://192.168.0.113:5000/sync-items', data);
         await AsyncStorage.removeItem('unsyncedData');
       }
     } catch (error) {
@@ -147,7 +177,6 @@ const HomeScreen = ({ navigation }) => {
   }
 
   return (
-  
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.header}>
@@ -178,38 +207,51 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </View>
       <KeyboardAvoidingView
-    style={styles.container}
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-  >
-      <TextInput
-        style={styles.input}
-        placeholder= " Cari tanaman obat atau penyakit..."
-        value={searchQuery}
-        onChangeText={handleSearch}
-      />
-      <View>
-       <Svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-       style={{top:'-200%', left:'7%' }}>
-<Path d="M0 0 C2.97672584 1.77280561 5.42804007 3.85608015 7 7 C7.13357453 10.67329964 7.1671568 13.49852959 6 17 C7.32 18.32 8.64 19.64 10 21 C9.67 21.99 9.34 22.98 9 24 C6.50638429 22.79618552 4.31856917 21.54571278 2 20 C1.34 20.33 0.68 20.66 0 21 C-5.86390959 21.67660495 -5.86390959 21.67660495 -8.7578125 19.953125 C-12.32627792 17.02250123 -13.84665539 15.32898658 -14.375 10.75 C-13.88072704 5.80727042 -12.46171699 4.46171699 -9 1 C-5.85088521 -0.57455739 -3.47991184 -0.34799118 0 0 Z M-8.375 5.5625 C-10.34359806 8.01459258 -10.34359806 8.01459258 -9.9375 11.625 C-9.3249155 15.25516924 -9.3249155 15.25516924 -6 17 C-2.42823885 16.91832511 -2.42823885 16.91832511 1 16 C3.36139302 13.10538099 3.36139302 13.10538099 2.8125 9.4375 C2.35160238 5.74174248 2.35160238 5.74174248 -1 4 C-4.27935719 3.49548351 -5.58165416 3.72477247 -8.375 5.5625 Z " fill="#FFFFFF" transform="translate(14,0)"/>
-</Svg>
-</View>
-      <FlatList
-        data={filteredData}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate('Detail', { item })} key={`plant-${item.id}`}>
-            <View style={styles.itemContainer}>
-              <Image source={{ uri: item.image }} style={styles.itemImage} />
-              <Text style={styles.itemName}>{item.name}</Text>
-            </View>
-            
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.id.toString()}
-      />
-         
-         </KeyboardAvoidingView>
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <TextInput
+          style={styles.input}
+          placeholder="Cari tanaman obat atau penyakit..."
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+        <View style={styles.searchIconContainer}>
+          <Svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <Path
+              d="M0 0 C2.97672584 1.77280561 5.42804007 3.85608015 7 7 C7.13357453 10.67329964 7.1671568 13.49852959 6 17 C7.32 18.32 8.64 19.64 10 21 C9.67 21.99 9.34 22.98 9 24 C6.50638429 22.79618552 4.31856917 21.54571278 2 20 C1.34 20.33 0.68 20.66 0 21 C-5.86390959 21.67660495 -5.86390959 21.67660495 -8.7578125 19.953125 C-12.32627792 17.02250123 -13.84665539 15.32898658 -14.375 10.75 C-13.88072704 5.80727042 -12.46171699 4.46171699 -9 1 C-5.85088521 -0.57455739 -3.47991184 -0.34799118 0 0 Z M-8.375 5.5625 C-10.34359806 8.01459258 -10.34359806 8.01459258 -9.9375 11.625 C-9.3249155 15.25516924 -9.3249155 15.25516924 -6 17 C-2.42823885 16.91832511 -2.42823885 16.91832511 1 16 C3.36139302 13.10538099 3.36139302 13.10538099 2.8125 9.4375 C2.35160238 5.74174248 2.35160238 5.74174248 -1 4 C-4.27935719 3.49548351 -5.58165416 3.72477247 -8.375 5.5625 Z"
+              fill="#FFFFFF"
+              transform="translate(14,0)"
+            />
+          </Svg>
+        </View>
+        <FlatList
+          data={filteredData}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Detail', { item })}
+              key={`plant-${item.id}`}
+            >
+              <View style={styles.itemContainer}>
+                <Image
+                  source={{ uri: `file://${item.localImagePath}` }}
+                  style={styles.itemImage}
+                />
+                <Text style={styles.itemName}>{item.name}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      </KeyboardAvoidingView>
     </View>
-     
   );
 };
 
@@ -235,8 +277,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: -25,
-    marginLeft:'-34%'
   },
   centeredView: {
     flex: 1,
@@ -252,40 +292,34 @@ const styles = StyleSheet.create({
     margin: 16,
     backgroundColor: '#28A745',
     paddingLeft: 35,
-    
+  },
+  searchIconContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 24,
+    zIndex: 1,
   },
   itemContainer: {
     backgroundColor: '#ffffff',
-    padding: 5, // Mengatur padding untuk mengurangi lebar border
+    padding: 5,
     marginVertical: 8,
     marginHorizontal: 16,
     borderRadius: 8,
-    borderWidth: 1, // Mengatur lebar border menjadi 1
-    borderColor: '#ddd', // Warna border yang lebih lembut
+    borderWidth: 1,
+    borderColor: '#ddd',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1, // Mengurangi opasitas bayangan
+    shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 1, // Mengurangi elevasi untuk efek yang lebih halus
-    flexDirection: 'row', // Menyusun item secara horizontal
-    alignItems: 'center', // Menyelaraskan item di tengah vertikal
-   
-  },
-  itemContent: {
-    flex: 1, // Mengambil sisa ruang yang tersedia
-    
+    elevation: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   itemName: {
-    fontSize: 16, // Menyesuaikan ukuran font
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#333', // Warna teks yang lebih gelap untuk kontras
-    marginLeft: "-10%", // Menggeser nama tanaman ke kiri sedikit
-  },
-  image: {
-    width: 20,
-    height: 20,
-    resizeMode: 'contain',
-    top: 100
+    color: '#333',
+    marginLeft: 10,
   },
   itemImage: {
     width: 50,
@@ -294,6 +328,5 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 });
-
 
 export default HomeScreen;
