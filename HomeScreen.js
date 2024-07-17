@@ -89,7 +89,7 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://192.168.0.113:5000/items');
+      const response = await axios.get('http://192.168.87.63:3000/items');
       if (JSON.stringify(response.data) !== JSON.stringify(data)) {
         const itemsWithLocalImages = await Promise.all(response.data.map(async (item) => {
           const localImagePath = await getImagePath(item.image);
@@ -108,7 +108,7 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchDiseases = async () => {
     try {
-      const response = await axios.get('http://192.168.0.113:5000/diseases');
+      const response = await axios.get('http://192.168.87.63:3000/diseases');
       setDiseases(response.data);
     } catch (error) {
       console.error('Error fetching diseases:', error.message);
@@ -148,7 +148,7 @@ const HomeScreen = ({ navigation }) => {
       const unsyncedData = await AsyncStorage.getItem('unsyncedData');
       if (unsyncedData) {
         const data = JSON.parse(unsyncedData);
-        await axios.post('http://192.168.0.113:5000/sync-items', data);
+        await axios.post('http://192.168.87.63:5000/sync-items', data);
         await AsyncStorage.removeItem('unsyncedData');
       }
     } catch (error) {
@@ -277,6 +277,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
+    top:-20
   },
   centeredView: {
     flex: 1,

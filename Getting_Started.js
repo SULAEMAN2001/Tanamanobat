@@ -24,7 +24,7 @@ export default function App() {
          
 <View>
 <Text style={{
-  color: '#3849F6',
+  color: 'green',
   fontSize: 20,
   fontWeight: 500,
   top: -55,
@@ -86,7 +86,7 @@ export default function App() {
  
 <View>
 <Text style={{
-  color: '#3849F6',
+  color: 'green',
   fontSize: 20,
   fontWeight: 500,
   top: -50,
@@ -178,12 +178,12 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,  
-    backgroundColor: 'blue',  
+    backgroundColor: 'green',  
     margin: 5,
   },
   button: {
     top:170,
-    backgroundColor: '#3849F6',
+    backgroundColor: 'green',
     padding: 10,
     borderRadius: 5,
     alignItems:'center'
